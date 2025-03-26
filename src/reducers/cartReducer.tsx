@@ -4,7 +4,8 @@ import type { Product } from "../types";
 type Action = 
 {type : 'add-order-product', payload:{product:Product}}|
 { type: 'decrement-product-quantity', payload: { productId: number } }|
-{ type: 'increment-product-quantity', payload: { productId: number } }
+{ type: 'increment-product-quantity', payload: { productId: number } }|
+{type: 'reset-order'}
 type CartState = {
     products : Product[]
 }
@@ -52,6 +53,13 @@ export function cartReducer(state = INITIAL_CART_STATE, action: Action) {
             )
         }
    
+    }
+
+    if (action.type == 'reset-order'){
+        return{
+            ...state,
+            products: []
+        }
     }
 
     return state;

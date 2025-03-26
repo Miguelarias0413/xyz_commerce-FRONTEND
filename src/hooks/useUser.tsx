@@ -33,9 +33,7 @@ const useUser = create<UserState>(set => ({
           }
     
           const userData = await response.json();
-          console.log('aentro');
-          
-          console.log(userData);
+        
           
          
           set({ user: userData , isAuthenticated: true, isAdmin: userData.is_admin});

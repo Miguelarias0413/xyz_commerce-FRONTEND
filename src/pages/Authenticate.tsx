@@ -35,7 +35,7 @@ export default function Authenticate() {
   useEffect(() => {
     if (isAuthenticated){
       navigate('/landing')
-      toast.warning("Ya estás registrado mi rey")
+      toast.warning("Ya estás autenticado mi rey, Bienvenido")
     }
     
   });
@@ -117,7 +117,6 @@ export default function Authenticate() {
       const { success }: UserResponse = await response.json();
 
       if (success) {
-        toast.success("El usuario se ha creado correctamente");
         setIsLoginActivated(!isLoginActivated);
         checkAuthStatus();
       }

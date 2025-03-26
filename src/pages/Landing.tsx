@@ -11,6 +11,12 @@ export interface ResponseErrors {
   success: boolean;
 }
 
+export interface ResponseCreateOrder {
+  success: boolean;
+  message: string;
+}
+
+
 export default function Landing() {
   const [productsCart, dispatch] = useReducer(cartReducer, INITIAL_CART_STATE);
   const [productsAssociated, setProductsAssociated] = useState<Product[]>([]);
@@ -18,7 +24,7 @@ export default function Landing() {
 
   useEffect(() => {
     fetchProductsAssociatedToUser();
-  }, []);
+  }, [productsAssociated]);
 
   const logOut = async () => {
     toast.info("Cerrando Sesion");
@@ -59,10 +65,28 @@ export default function Landing() {
     setProductsAssociated(data.products);
   };
 
-  const handleCreateOrder = () => {
-    console.log(productsCart);
+  const handleCreateOrder = async () => {
+    const response  = await fetch(`${BACKEND_URL_API}/createOrder`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(productsCart),
+    });
+    dispatch({type: 'reset-order'});
+    const data :ResponseCreateOrder = await response.json();
 
-    fetch(`${BACKEND_URL_API}/`)
+    if(data.success){
+      toast.success(data.message)
+    }
+    else
+    {
+      toast.error(data.message)
+
+    }
+    
   };
 
   return (
@@ -160,11 +184,18 @@ export default function Landing() {
                     </div>
                   )}
                   <button
-                  disabled={productsCart.products.length <= 0}
+                    disabled={productsCart.products.length <= 0}
                     onClick={handleCreateOrder}
                     className="bg-blue-600 disabled:bg-gray-600 disabled:opacity-20 my-2 mx-5  text-white px-3 py-2 rounded cursor-pointer hover:bg-blue-400"
                   >
                     Crear Orden
+                  </button>
+                  <button
+                    disabled={productsCart.products.length <= 0}
+                    onClick={() => dispatch({type: 'reset-order'})}
+                    className="bg-red-600 disabled:bg-gray-600 disabled:opacity-20 my-2 mx-5  text-white px-3 py-2 rounded cursor-pointer hover:bg-red-400"
+                  >
+                    Resetear Orden
                   </button>
                 </div>
               </div>
@@ -172,21 +203,22 @@ export default function Landing() {
           </nav>
         </>
       </Header>
-      <main className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+      <main className="flex justify-around flex-wrap  bg-slate-300 min-h-[90vh] p-8 ">
         {productsAssociated.length > 0 ? (
           productsAssociated.map((product) => (
-            <article key={product.id} className=" border p-4 rounded shadow">
+            <article key={product.id} className=" border p-4 rounded shadow h-40 w-80 bg-white">
               <h3 className="font-bold text-lg">{product.name}</h3>
               <p>ID: {product.id}</p>
               <p>Stock: {product.stock}</p>
               <button
+              disabled={product.stock <= 0}
                 onClick={() => {
                   dispatch({
                     type: "add-order-product",
                     payload: { product: product },
                   });
                 }}
-                className="mt-2 mx-auto cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-400"
+                className="mt-2 mx-auto cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-400 disabled:bg-gray-500"
               >
                 Añadir al carrito
               </button>
